@@ -22,15 +22,22 @@ TensorFlow Lite plugin for Flutter apps.
   
   s.dependency 'Flutter'
   
+  # The plugin reaches TensorFlow Lite through dart:ffi only, so it needs the
+  # C library and nothing else. Upstream depends on TensorFlowLiteSwift, whose
+  # source is a git commit of tensorflow/tensorflow: `pod install` clones the
+  # whole repository (~1.3 GB) for Swift files this plugin never calls, and the
+  # static Swift pod at iOS 11 fails to link into an Objective-C-only Runner.
+  # TensorFlowLiteC is a prebuilt binary download of the same 2.12.0 library.
+  #
+  # Only Core: the Metal and CoreML delegates are not linked, so GpuDelegate and
+  # CoreMlDelegate are unavailable on iOS. Add TensorFlowLiteC/Metal or
+  # TensorFlowLiteC/CoreML here if a delegate is ever needed.
   tflite_version = '2.12.0'
-  s.dependency 'TensorFlowLiteSwift', tflite_version
-  s.dependency 'TensorFlowLiteSwift/Metal', tflite_version
-  s.dependency 'TensorFlowLiteSwift/CoreML', tflite_version
+  s.dependency 'TensorFlowLiteC/Core', tflite_version
 
   s.platform = :ios, '11.0'
   s.static_framework = true
 
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
-  s.swift_version = '5.0'
 end
